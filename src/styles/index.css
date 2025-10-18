@@ -1,11 +1,106 @@
-/* 
+body {
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(135deg, #704b81, #704b81);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0;
+}
 
-    You can write your own styles here...
-    
-    
-    ...Or you can use the import command to include 
-    other sylesheets into your bunde as well, e.j:
-    
-    import 'relative/path/to/stylesheet.scss';
+.app-container {
+  background: #ffffff;
+  padding: 2rem;
+  border-radius: 1rem;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  width: 400px;
+  max-width: 90%;
+  display: flex;
+  flex-direction: column;
+}
 
-*/
+h1 {
+  text-align: center;
+  color: #2d3436;
+  margin-bottom: 1rem;
+}
+
+input[type="text"] {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 2px solid #dfe6e9;
+  border-radius: 0.5rem;
+  outline: none;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+  margin-bottom: 1rem;
+}
+
+input[type="text"]:focus {
+  border-color: #74b9ff;
+  box-shadow: 0 0 6px rgba(116, 185, 255, 0.5);
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f9f9f9;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  margin-bottom: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+li:hover {
+  background: #eaf2ff;
+  transform: scale(1.02);
+}
+
+button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.1rem;
+  margin-left: 0.5rem;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+button:hover {
+  transform: scale(1.2);
+  opacity: 0.8;
+}
+
+button:last-of-type {
+  color: white;
+}
+
+p {
+  text-align: center;
+  color: #636e72;
+  font-size: 0.95rem;
+  margin-top: 1rem;
+}
+
+.clear-btn {
+  margin-top: 1rem;
+  background: #704b81;
+  color: white;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.clear-btn:hover {
+  background: #704b81;
+  transform: scale(1.05);
+}
