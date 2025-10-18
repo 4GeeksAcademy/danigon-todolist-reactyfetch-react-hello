@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from "react";
 
-  const TodoListPage = () => {
-  const API_USER = "https://playground.4geeks.com/todo/users/dani-gones";
-  const API_TODOS = "https://playground.4geeks.com/todo/todos/dani-gones";
+const TodoListPage = () => {
+  const API_USER = "https://playground.4geeks.com/todo/users/alesanchezr";
+  const API_TODOS = "https://playground.4geeks.com/todo/todos/alesanchezr";
 
-  // Estado de tareas e input
   const [listItems, setListItems] = useState([]);
   const [inputValue, setInputValue] = useState("");
 
-  // Inicializar usuario al montar
   useEffect(() => {
     const initializeUser = async () => {
       try {
@@ -19,11 +17,10 @@ import React, { useState, useEffect } from "react";
         });
 
         if (res.status === 400) {
-          // Usuario ya existe → ignorar
+          // Usuario ya existe → ignoramos
           console.log("Usuario ya existe, continuando...");
         }
 
-        // Inicialmente lista vacía
         setListItems([]);
       } catch (err) {
         console.error("Error inicializando usuario:", err);
@@ -33,28 +30,30 @@ import React, { useState, useEffect } from "react";
     initializeUser();
   }, []);
 
-  // Crear nueva tarea
-  const createItem = async (taskLabel) => {
+  // Crear nueva tarea usando POST
+  const createItem = (taskLabel) => {
     if (!taskLabel.trim()) return;
 
-    const newTask = { label: taskLabel, done: false };
-    const updatedTasks = [...listItems, newTask];
+    const task = { label: taskLabel, done: false };
 
-    try {
-      await fetch(API_TODOS, {
-        method: "PUT", // reemplaza toda la lista
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updatedTasks),
-      });
-
-      setListItems(updatedTasks);
-      setInputValue("");
-    } catch (err) {
-      console.error("Error agregando tarea:", err);
-    }
+    fetch(API_TODOS, {
+      method: "POST",
+      body: JSON.stringify(task),
+      headers: { "Content-Type": "application/json" },
+    })
+      .then((resp) => {
+        if (!resp.ok) throw new Error("Error al agregar tarea");
+        return resp.json();
+      })
+      .then((data) => {
+        console.log("Tarea agregada:", data);
+        setListItems([...listItems, task]); // actualiza estado local
+        setInputValue("");
+      })
+      .catch((error) => console.log(error));
   };
 
-  // Borrar tarea
+  // Borrar tarea localmente y actualizar toda la lista con PUT
   const deleteItem = async (index) => {
     const updatedTasks = listItems.filter((_, i) => i !== index);
 
@@ -70,7 +69,6 @@ import React, { useState, useEffect } from "react";
     }
   };
 
-  // Limpiar todas las tareas
   const clearAll = async () => {
     try {
       await fetch(API_TODOS, {
@@ -113,4 +111,4 @@ import React, { useState, useEffect } from "react";
   );
 };
 
-export default TodoListPage; 
+export default TodoListPage;
