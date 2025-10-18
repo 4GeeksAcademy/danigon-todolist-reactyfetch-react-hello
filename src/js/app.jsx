@@ -1,66 +1,86 @@
 import React, { useState, useEffect } from "react";
 
-const API_URL = "https://playground.4geeks.com/todo/users/dani-gones";
+  const TodoListPage = () => {
+  const API_USER = "https://playground.4geeks.com/todo/users/dani-gones";
+  const API_TODOS = "https://playground.4geeks.com/todo/todos/dani-gones";
 
-
-const App = () => {
-  const [tasks, setTasks] = useState([]);
+  // Estado de tareas e input
+  const [listItems, setListItems] = useState([]);
   const [inputValue, setInputValue] = useState("");
 
-// GET TAREA
-  const getTasks = async () => {
-    try {
-      const res = await fetch(API_URL);
-      if (!res.ok) throw new Error("Error al obtener tareas");
-      const data = await res.json();
-      setTasks(data.todos || []);
-    } catch (err) {
-      console.error("❌ Error cargando tareas:", err);
-    }
-  };
-
+  // Inicializar usuario al montar
   useEffect(() => {
-    getTasks();
-  }, []);
-
-// AGG TAREA
-  const addTask = async (e) => {
-    if (e.key === "Enter" && inputValue.trim() !== "") {
-      const newTask = { label: inputValue, is_done: false };
+    const initializeUser = async () => {
       try {
-        const res = await fetch(API_URL, {
+        const res = await fetch(API_USER, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(newTask),
+          body: JSON.stringify([]), // array vacío obligatorio
         });
-        if (!res.ok) throw new Error("Error al agregar tarea");
-        setInputValue("");
-        getTasks(); // actualiza la lista
+
+        if (res.status === 400) {
+          // Usuario ya existe → ignorar
+          console.log("Usuario ya existe, continuando...");
+        }
+
+        // Inicialmente lista vacía
+        setListItems([]);
       } catch (err) {
-        console.error("❌ Error agregando tarea:", err);
+        console.error("Error inicializando usuario:", err);
       }
+    };
+
+    initializeUser();
+  }, []);
+
+  // Crear nueva tarea
+  const createItem = async (taskLabel) => {
+    if (!taskLabel.trim()) return;
+
+    const newTask = { label: taskLabel, done: false };
+    const updatedTasks = [...listItems, newTask];
+
+    try {
+      await fetch(API_TODOS, {
+        method: "PUT", // reemplaza toda la lista
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatedTasks),
+      });
+
+      setListItems(updatedTasks);
+      setInputValue("");
+    } catch (err) {
+      console.error("Error agregando tarea:", err);
     }
   };
 
-  // Eliminar una tarea (DELETE /todos/:user/:id)
-  const deleteTask = async (id) => {
+  // Borrar tarea
+  const deleteItem = async (index) => {
+    const updatedTasks = listItems.filter((_, i) => i !== index);
+
     try {
-      const res = await fetch(`${API_URL}/${id}`, { method: "DELETE" });
-      if (!res.ok) throw new Error("Error al eliminar tarea");
-      getTasks();
+      await fetch(API_TODOS, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatedTasks),
+      });
+      setListItems(updatedTasks);
     } catch (err) {
-      console.error("❌ Error eliminando tarea:", err);
+      console.error("Error eliminando tarea:", err);
     }
   };
 
-  // Limpiar todas las tareas (DELETE /todos/:user)
-  const clearAllTasks = async () => {
+  // Limpiar todas las tareas
+  const clearAll = async () => {
     try {
-      const res = await fetch(API_URL, { method: "DELETE" });
-      if (!res.ok) throw new Error("Error al limpiar todas las tareas");
-      setTasks([]);
+      await fetch(API_TODOS, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify([]),
+      });
+      setListItems([]);
     } catch (err) {
-      console.error("❌ Error limpiando todas las tareas:", err);
+      console.error("Error limpiando todas las tareas:", err);
     }
   };
 
@@ -73,26 +93,24 @@ const App = () => {
         value={inputValue}
         placeholder="Escribe una tarea y presiona Enter"
         onChange={(e) => setInputValue(e.target.value)}
-        onKeyDown={addTask}
+        onKeyDown={(e) => e.key === "Enter" && createItem(inputValue)}
       />
 
       <ul>
-        {tasks.map((task) => (
-          <li key={task.id}>
-            <span>{task.label}</span>
-            <button onClick={() => deleteTask(task.id)}>❌</button>
+        {listItems.map((item, index) => (
+          <li key={index}>
+            <span>{item.label}</span>
+            <button onClick={() => deleteItem(index)}>❌</button>
           </li>
         ))}
       </ul>
 
-      {tasks.length === 0 && <p>No hay tareas, ¡añade una!</p>}
+      {listItems.length === 0 && <p>No hay tareas, ¡añade una!</p>}
 
-      <button className="clear-btn" onClick={clearAllTasks}>
-        🧹 Limpiar todo
-      </button>
+      <button onClick={() => createItem(inputValue)}>➕</button>
+      <button onClick={clearAll}>🧹</button>
     </div>
   );
 };
 
-export default App;
-
+export default TodoListPage; 
